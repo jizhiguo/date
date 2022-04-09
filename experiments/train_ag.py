@@ -218,20 +218,20 @@ def run_exps():
 
         model = LanguageModelingModel("electra",
                                       None,
-                                    #   "/mnt/e/temp/date1/experiments/outputs",
+                                      "/mnt/e/temp/date1/experiments/outputs",
                                       masks=masks_,
                                       args=train_args,
                                       train_files=train_file,
                                       use_cuda=True)
 
-        # model.tb_add_embedding(train_file,
-        #                        outlier_file,
-        #                        tag="before_fine_tune")
+        model.tb_add_embedding(train_file,
+                               outlier_file,
+                               tag="before_fine_tune")
 
-        model.train_model_anomaly(train_file,
-                                  eval_file=test_file,
-                                  eval_file_outlier=outlier_file,
-                                  sched_params=sched_params)
+        # model.train_model_anomaly(train_file,
+        #                           eval_file=test_file,
+        #                           eval_file_outlier=outlier_file,
+        #                           sched_params=sched_params)
 
         # model.tb_add_embedding(train_file,
         #                        outlier_file,
