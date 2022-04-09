@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body onload="show1.value=anom_word_threshold.value;
+show2.value=anom_word_alpha.value;
+show3.value=oov_alpha.value;show4.value=positive_cutoff.value;
+">
+    <form action="{{ url_for('form_data') }}" method="POST">
+        <textarea id="msg" name="msg" rows="15" cols="100"></textarea><br>
+        怪词置信度阈值（0~1实数）:<br>
+        <input id="anom_word_threshold" name="anom_word_threshold" type="range" min="0" max="1" step="0.01" value="0.15"
+            oninput="show1.value=value">
+        <output id='show1'></output><br>
+        怪词惩罚系数（0~100整数）： 0容忍怪词，越大越容忍<br>
+        <input id="anom_word_alpha" name="anom_word_alpha" type="range" min="0" max="100" step="1" value="0"
+            oninput="show2.value=value">
+        <output id='show2'></output><br>
+        OOV惩罚系数（0~100整数）：0容忍OOV，越大越容忍，OOV通常置信度很高，不宜当作怪词来处理。<br>
+        <input id="oov_alpha" name="oov_alpha" type="range" min="0" max="100" step="1" value="0"
+            oninput="show3.value=value">
+        <output id='show3'></output><br>
+        正例置信度阈值（0~1实数）：<br>
+        <input id="positive_cutoff" name="positive_cutoff" type="range" min="0" max="1" step="0.01" value="0.7"
+            oninput="show4.value=value">
+        <output id='show4'></output><br>
+
+    </form>
+    <Br>
+    <input type="button" name="sendjson" value="提交" id="sendjson"><br>
+    <div id="myDiv"></div>
+
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+    <script>
+        $("#sendjson").click(function () {
+            if ($("#msg").val().trim().length == 0) return
+
+            params = {
+                "msg": $("#msg").val(),
+                "anom_word_threshold": $("#anom_word_threshold").val(),
+                "anom_word_alpha": $("#anom_word_alpha").val(),
+                "oov_alpha": $("#oov_alpha").val(),
+                "positive_cutoff": $("#positive_cutoff").val()
+            }
+
+            $.post("{{ url_for('form_data') }}",
+                params,
+                function (obj) {
+                    t = ""
+                    for (var i = 0; i < obj.msg.PosNeg.length; i++) {
+                        pos = obj.msg.PosNeg[i]
+                        if (obj.msg.PosNeg[i] == '异常') pos = "<span style=background-color:rgba(255,0,0,0.1)>" + obj.msg.PosNeg[i] + "</span>"
+                        t = t + "<table border=1><tr><td>" + i + "</td><td>" + pos + "</td>"
+                        for (var j = 0; j < obj.msg.tokens[i].length; j++) {
+                            t = t + "<td><span style=background-color:rgba(" + parseInt(255 * (1 - obj.msg.token_score[i][j])) + ",0,0,0.2)>" + obj.msg.tokens[i][j] + "</span></td>"
+                        }
+
+                        t = t + "</tr><tr><td></td><td>" + obj.msg.Score[i] + "</td>"
+                        for (var j = 0; j < obj.msg.token_score[i].length; j++) {
+                            t = t + "<td>" + obj.msg.token_score[i][j] + "</td>"
+                        }
+                        t = t + "</tr></table><br>"
+
+                    }
+                    $("#myDiv").before(t)
+                    console.log(obj);
+                },
+                "json");
+        })
+    </script>
+</body>
+
+</html>

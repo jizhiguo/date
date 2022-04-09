@@ -1,0 +1,5 @@
+embeddings {
+tensor_name: "before_fine_tune04052022_181545:00000"
+tensor_path: "00000/before_fine_tune04052022_181545/tensors.tsv"
+metadata_path: "00000/before_fine_tune04052022_181545/metadata.tsv"
+}
