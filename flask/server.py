@@ -2,6 +2,7 @@
 from flask import Flask, render_template, url_for, request, json, jsonify
 from flask_bootstrap import Bootstrap
 
+import random
 import argparse
 import logging
 import os
@@ -225,6 +226,8 @@ model = LanguageModelingModel("electra",
                                 args=train_args,
                                 train_files=train_file,
                                 use_cuda=True)
+model.build_text_samples(test_file,outlier_file)                                
+
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 @app.route('/form_data', methods=['GET', 'POST'])
@@ -241,8 +244,12 @@ def form_data():
         msgs = [msg.translate(str.maketrans("!@#$%^&*()~+-/\=_<>,.?;:'\"","！＠＃￥％·＆＊（）～＋－、、＝—《》，。？；：‘“")).strip() for msg in msgs.split("\n") if len(msg.translate(str.maketrans("!@#$%^&*()~+-/\=_<>,.?;:'\"","！＠＃￥％·＆＊（）～＋－、、＝—《》，。？；：‘“")).strip())>0]
 
         # import re
+        # # exclude all puctuations & numbers
         # msgs = [re.sub("[!@#$%^&*()~+-/\=_<>,.?;:'\"]","",msg) for msg in msgs.split("\n") if len(re.sub("[!@#$%^&*()~+-/\=_<>,.?;:'\"]","",msg).strip())>0]
-        
+        # msgs = [re.sub("[！＠＃￥％·＆＊（）～＋－、、＝—《》，。？；：‘’“”]","",msg) for msg in msgs if len(re.sub("[！＠＃￥％·＆＊（）～＋－、、＝—《》，。？；：‘’“”]","",msg).strip())>0]
+        # msgs = [re.sub("[0-9]+","",msg) for msg in msgs if len(re.sub("[0-9]+","",msg).strip())>0]
+
+        if (len(msgs)==0):return jsonify({'status': '-1', 'msg': '', 'errmsg': 'failed!'})
 
         msgs = model.predicts(msgs, float(anom_word_threshold), float(anom_word_alpha), float(oov_alpha), float(positive_cutoff))
         tok_score_lists={
@@ -260,6 +267,11 @@ def form_data():
         msg = request.args.get("msg")
         return jsonify({'status': '0', 'msg': msgs, 'errmsg': '成功!'})
 
+
+@app.route('/randgen', methods=['GET', 'POST'])
+def randgen():
+    lines=random.sample(model.lines, 5)
+    return jsonify({'status': '0', 'msg': lines, 'errmsg': '成功!'})
 @app.route('/')
 def index():
     return render_template('test.html')

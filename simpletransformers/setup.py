@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
 from setuptools import find_packages, setup
 
 with open("README.md", "r") as fh:
@@ -35,6 +38,5 @@ setup(
         "tokenizers",
         "wandb",
         "streamlit",
-        "sentencepiece",
     ],
 )

@@ -10,8 +10,9 @@
 show2.value=anom_word_alpha.value;
 show3.value=oov_alpha.value;show4.value=positive_cutoff.value;
 ">
-    <form action="{{ url_for('form_data') }}" method="POST">
-        <textarea id="msg" name="msg" rows="15" cols="100"></textarea><br>
+    <form method="POST">
+        <textarea id="msg" name="msg" rows="15" cols="100">基于语义理解的内容检测，在持续训练和不断迭代过程中，能够无限逼近真实情况，相较于传统关键字过滤更加准确、灵活、易维护。</textarea>
+        <input type="button" name="randgen" value="换一批" id="randgen"><br>
         怪词置信度阈值（0~1实数）:<br>
         <input id="anom_word_threshold" name="anom_word_threshold" type="range" min="0" max="1" step="0.01" value="0.15"
             oninput="show1.value=value">
@@ -25,13 +26,15 @@ show3.value=oov_alpha.value;show4.value=positive_cutoff.value;
             oninput="show3.value=value">
         <output id='show3'></output><br>
         正例置信度阈值（0~1实数）：<br>
-        <input id="positive_cutoff" name="positive_cutoff" type="range" min="0" max="1" step="0.01" value="0.7"
+        <input id="positive_cutoff" name="positive_cutoff" type="range" min="0" max="1" step="0.01" value="0.85"
             oninput="show4.value=value">
         <output id='show4'></output><br>
-
+        
+        
     </form>
     <Br>
-    <input type="button" name="sendjson" value="提交" id="sendjson"><br>
+    <input type="button" name="sendjson" value="提交" id="sendjson">          
+    <input type="button" name="cleardiv" value="清除" id="cleardiv"><br>
     <div id="myDiv"></div>
 
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
@@ -66,10 +69,30 @@ show3.value=oov_alpha.value;show4.value=positive_cutoff.value;
                         t = t + "</tr></table><br>"
 
                     }
-                    $("#myDiv").before(t)
+                    $("#myDiv").prepend(t)
                     console.log(obj);
                 },
                 "json");
+        })
+        $("#cleardiv" ).click(function () {
+            $("#myDiv").empty()
+        })
+
+        $("#randgen" ).click(function () {
+            params=''
+            $.post("{{ url_for('randgen') }}",
+                params,
+                function (obj) {
+                    $("#msg").val("")
+                    t=""
+                    for (var i = 0; i < obj.msg.length; i++) {
+                        t = t + obj.msg[i]
+                    }
+                    $("#msg").val(t)
+                    console.log(obj);
+                },
+                "json");
+
         })
     </script>
 </body>

@@ -139,7 +139,7 @@ def run_exps():
         "use_multiprocessing": False,
         "reprocess_input_data": False,
         "overwrite_output_dir": True,
-        "num_train_epochs": 20,#was 20
+        "num_train_epochs": 1,#was 20
         "save_eval_checkpoints": False,
         "save_model_every_epoch": False,
         "learning_rate": max_lr,
@@ -150,11 +150,11 @@ def run_exps():
         "block_size": seq_len + 2,
         "max_seq_length": seq_len + 2,
         "dataset_type": "simple",
-        "logging_steps": 107400,  #was 500
+        "logging_steps": 107400000,  #was 500
         "evaluate_during_training": True,
-        "evaluate_during_training_steps": 107400,  #was 500
+        "evaluate_during_training_steps": 107400000,  #was 500
         # "evaluate_during_training_steps_anomaly": eval_anomaly,  #was 500
-        "evaluate_during_training_steps_anomaly": 107400,  #was 500
+        "evaluate_during_training_steps_anomaly": 107400000,  #was 500
         "anomaly_batch_size": anomaly_batch_size,
         "evaluate_during_training_verbose": True,
         "use_cached_eval_features": True,
@@ -218,24 +218,24 @@ def run_exps():
 
         model = LanguageModelingModel("electra",
                                       None,
-                                      "/mnt/e/temp/date1/experiments/outputs",
+                                    #   "/mnt/e/temp/date1/experiments/outputs",
                                       masks=masks_,
                                       args=train_args,
                                       train_files=train_file,
                                       use_cuda=True)
 
-        model.tb_add_embedding(train_file,
-                               outlier_file,
-                               tag="before_fine_tune")
-
-        # model.train_model_anomaly(train_file,
-        #                           eval_file=test_file,
-        #                           eval_file_outlier=outlier_file,
-        #                           sched_params=sched_params)
-
         # model.tb_add_embedding(train_file,
         #                        outlier_file,
-        #                        tag="after_fine_tune")
+        #                        tag="before_fine_tune")
+
+        model.train_model_anomaly(train_file,
+                                  eval_file=test_file,
+                                  eval_file_outlier=outlier_file,
+                                  sched_params=sched_params)
+
+        model.tb_add_embedding(train_file,
+                               outlier_file,
+                               tag="after_fine_tune")
 
         # result = model.predicts([
         #     "前方8公里3车事故，封闭左车道",#should be normal

@@ -297,10 +297,14 @@ class LanguageModelingModel:
                         random_generator=self.extra_args['random_generator'],#add this para for avoiding error loading pretrained model
                         **kwargs,
                     )
+#                    self.model.load_state_dict(
+#                        torch.load(
+ #                           os.path.join(self.args.model_name,
+   #                                      "pytorch_model.bin")))
                     self.model.load_state_dict(
                         torch.load(
                             os.path.join(self.args.model_name,
-                                         "pytorch_model.bin")))
+                                         "pytorch_model.bin"), map_location=torch.device('cpu')))
             else:
                 self.model = model_class.from_pretrained(
                     model_name,
